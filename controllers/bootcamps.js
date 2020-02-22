@@ -5,11 +5,20 @@ const bootcampModel = require("../models/Bootcamp.js");
  * @param route GET /api/v1/bootcamps
  * @param access PUBLIC
  */
-exports.getBootcamps = (req, res, next) => {
-  res.status(200).send({
-    sucess: true,
-    body: "show all bootcamps"
-  });
+exports.getBootcamps = async (req, res, next) => {
+  try {
+    const bootcamp = await bootcampModel.find();
+    res.status(200).json({
+      sucess: true,
+      count: bootcamp.length,
+      data: bootcamp
+    });
+  } catch (error) {
+    console.log(error.message.bgRed);
+    res.status(400).json({
+      sucess: false
+    });
+  }
 };
 
 /**
@@ -17,11 +26,29 @@ exports.getBootcamps = (req, res, next) => {
  * @param route GET /api/v1/bootcamps/:id
  * @param access PUBLIC
  */
-exports.getSingleBootcamp = (req, res, next) => {
-  res.status(200).send({
-    sucess: true,
-    body: `show bootcamp ${req.params.id}`
-  });
+exports.getSingleBootcamp = async (req, res, next) => {
+  try {
+    const bootcamp = await bootcampModel.findById(req.params.id);
+
+    //NOTE: if there are two res in same local block add return to res present in contional statement
+
+    if (!bootcamp) {
+      return res.status(400).json({
+        sucess: false
+      });
+    }
+
+    res.status(200).json({
+      sucess: true,
+      data: bootcamp
+    });
+    console.log(bootcamp);
+  } catch (error) {
+    console.log(error.message.bgRed);
+    res.status(400).json({
+      sucess: false
+    });
+  }
 };
 
 /**
@@ -32,6 +59,7 @@ exports.getSingleBootcamp = (req, res, next) => {
 exports.createBootcamp = async (req, res, next) => {
   try {
     const bootcamp = await bootcampModel.create(req.body);
+
     res.status(201).json({
       sucess: true,
       data: bootcamp
@@ -50,11 +78,34 @@ exports.createBootcamp = async (req, res, next) => {
  * @param route PUT /api/v1/bootcamps/:id
  * @param access PRIVATE
  */
-exports.updateBookcamp = (req, res, next) => {
-  res.status(200).send({
-    sucess: true,
-    body: `update bootcamp ${req.params.id}`
-  });
+exports.updateBookcamp = async (req, res, next) => {
+  try {
+    const bootcamp = await bootcampModel.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      {
+        new: true,
+        runValidators: true
+      }
+    );
+
+    if (!bootcamp) {
+      return res.status(400).json({
+        sucess: false
+      });
+    }
+
+    res.status(200).json({
+      sucess: true,
+      updatedData: bootcamp
+    });
+    console.log(bootcamp);
+  } catch (error) {
+    console.log(error.message.bgRed);
+    res.status(400).json({
+      sucess: false
+    });
+  }
 };
 
 /**
@@ -62,9 +113,25 @@ exports.updateBookcamp = (req, res, next) => {
  * @param route DELETE /api/v1/bootcamps/:id
  * @param access PRIVATE
  */
-exports.deleteBootcamp = (req, res, next) => {
-  res.status(200).send({
-    sucess: true,
-    body: `delete bootcamp ${req.params.id}`
-  });
+exports.deleteBootcamp = async (req, res, next) => {
+  try {
+    const bootcamp = await bootcampModel.findOneAndDelete(req.params.id);
+
+    if (!bootcamp) {
+      return res.status(400).json({
+        sucess: false
+      });
+    }
+
+    res.status(200).json({
+      sucess: true,
+      deletedData: bootcamp
+    });
+    console.log(bootcamp);
+  } catch (error) {
+    console.log(error.message.bgRed);
+    res.status(400).json({
+      sucess: false
+    });
+  }
 };
