@@ -22,8 +22,8 @@ const BootcampSchema = new mongoose.Schema({
     ]
   },
   phone: {
-    type: Number,
-    maxlength: [13, "Please enter a valid phone number"]
+    type: String,
+    maxlength: [20, "Please enter a valid phone number"]
   },
   email: {
     type: String,
@@ -40,8 +40,8 @@ const BootcampSchema = new mongoose.Schema({
     //GeoJson Point
     type: {
       type: String,
-      enum: ["Point"],
-      required: true
+      enum: ["Point"]
+      // required: true
     },
     coordinates: {
       type: [Number],
@@ -55,7 +55,7 @@ const BootcampSchema = new mongoose.Schema({
     zipcode: String,
     country: String
   },
-  carrers: {
+  careers: {
     //Array of strings
     type: [String],
     required: true,
@@ -64,8 +64,8 @@ const BootcampSchema = new mongoose.Schema({
       "Web Development",
       "Mobile Development",
       "UI/UX",
-      "Data science",
-      "Buissness",
+      "Data Science",
+      "Business",
       "Other"
     ]
   },

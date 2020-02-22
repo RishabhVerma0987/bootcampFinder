@@ -3,7 +3,7 @@ const colors = require("colors");
 const dotenv = require("dotenv");
 const app = express();
 const morgan = require("morgan");
-const conncetDB = require("./config/db.js");
+const connetDB = require("./config/db.js");
 
 //config path
 dotenv.config({ path: "./config/config.env" });
@@ -13,8 +13,9 @@ const bootcamps = require("./routes/bootcamps.js");
 
 //define main route & middleware
 app.use(morgan("dev"));
+app.use(express.json());
 app.use("/api/v1/bootcamps", bootcamps);
-conncetDB();
+connetDB();
 
 //port declaration and port listen
 const port = process.env.PORT || 8000;
