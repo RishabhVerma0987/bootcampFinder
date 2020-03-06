@@ -1,4 +1,5 @@
 const bootcampModel = require("../models/Bootcamp.js");
+const ErrorHandler = require("../utils/errorHandler.js");
 
 /**
  * @description get all the bootcamps
@@ -14,10 +15,7 @@ exports.getBootcamps = async (req, res, next) => {
       data: bootcamp
     });
   } catch (error) {
-    console.log(error.message.bgRed);
-    res.status(400).json({
-      sucess: false
-    });
+    next(error);
   }
 };
 
@@ -33,9 +31,9 @@ exports.getSingleBootcamp = async (req, res, next) => {
     //NOTE: if there are two res in same local block add return to res present in contional statement
 
     if (!bootcamp) {
-      return res.status(400).json({
-        sucess: false
-      });
+      return next(
+        new ErrorHandler(`Bootcamp not found at id ${req.params.id}`, 404)
+      );
     }
 
     res.status(200).json({
@@ -44,10 +42,7 @@ exports.getSingleBootcamp = async (req, res, next) => {
     });
     console.log(bootcamp);
   } catch (error) {
-    console.log(error.message.bgRed);
-    res.status(400).json({
-      sucess: false
-    });
+    next(error);
   }
 };
 
@@ -66,10 +61,7 @@ exports.createBootcamp = async (req, res, next) => {
     });
     console.log(bootcamp);
   } catch (error) {
-    console.log(error.message.bgRed);
-    res.status(400).json({
-      sucess: false
-    });
+    next(error);
   }
 };
 
@@ -90,9 +82,9 @@ exports.updateBookcamp = async (req, res, next) => {
     );
 
     if (!bootcamp) {
-      return res.status(400).json({
-        sucess: false
-      });
+      return next(
+        new ErrorHandler(`Bootcamp not found at id ${req.params.id}`, 404)
+      );
     }
 
     res.status(200).json({
@@ -101,10 +93,7 @@ exports.updateBookcamp = async (req, res, next) => {
     });
     console.log(bootcamp);
   } catch (error) {
-    console.log(error.message.bgRed);
-    res.status(400).json({
-      sucess: false
-    });
+    next(error);
   }
 };
 
@@ -118,9 +107,9 @@ exports.deleteBootcamp = async (req, res, next) => {
     const bootcamp = await bootcampModel.findOneAndDelete(req.params.id);
 
     if (!bootcamp) {
-      return res.status(400).json({
-        sucess: false
-      });
+      return next(
+        new ErrorHandler(`Bootcamp not found at id ${req.params.id}`, 404)
+      );
     }
 
     res.status(200).json({
@@ -129,9 +118,6 @@ exports.deleteBootcamp = async (req, res, next) => {
     });
     console.log(bootcamp);
   } catch (error) {
-    console.log(error.message.bgRed);
-    res.status(400).json({
-      sucess: false
-    });
+    next(error);
   }
 };

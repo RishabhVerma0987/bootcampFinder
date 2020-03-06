@@ -4,6 +4,7 @@ const dotenv = require("dotenv");
 const app = express();
 const morgan = require("morgan");
 const connetDB = require("./config/db.js");
+const errorHandler = require("./middleware/errorhandler.js");
 
 //config path
 dotenv.config({ path: "./config/config.env" });
@@ -15,6 +16,7 @@ const bootcamps = require("./routes/bootcamps.js");
 app.use(morgan("dev"));
 app.use(express.json());
 app.use("/api/v1/bootcamps", bootcamps);
+app.use(errorHandler);
 connetDB();
 
 //port declaration and port listen
