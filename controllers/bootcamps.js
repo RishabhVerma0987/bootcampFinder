@@ -1,6 +1,6 @@
 const bootcampModel = require("../models/Bootcamp.js");
 const ErrorHandler = require("../utils/errorHandler.js");
-
+const geocoder = require("../utils/geojsonDecoder.js");
 /**
  * @description get all the bootcamps
  * @param route GET /api/v1/bootcamps
@@ -117,6 +117,34 @@ exports.deleteBootcamp = async (req, res, next) => {
       deletedData: bootcamp
     });
     console.log(bootcamp);
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * @description find bootcamp using zipcode and area in miles
+ * @param route GET /api/v1/bootcamps/radius/:zipcode/:distance
+ * @param access PRIVATE
+ */
+exports.findBootcampByLocation = async (req, res, next) => {
+  const { zipcode, distance } = req.params;
+
+  const loc = await geocoder.geocode(zipcode);
+  const lat = loc[0].latitude;
+  const long = loc[0].longitude;
+
+  const area = distance / 3963; //in miles
+  console.log(lat, long, area);
+  try {
+    const bootcamp = await bootcampModel.find({
+      location: { $geoWithin: { $centerSphere: [[lat, long], area] } }
+    });
+    res.status(200).json({
+      sucess: true,
+      count: bootcamp.length,
+      data: bootcamp
+    });
   } catch (error) {
     next(error);
   }
