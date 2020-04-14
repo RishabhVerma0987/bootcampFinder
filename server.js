@@ -1,10 +1,10 @@
 const express = require("express");
 const colors = require("colors");
 const dotenv = require("dotenv");
-const app = express();
 const morgan = require("morgan");
 const connetDB = require("./config/db.js");
 const errorHandler = require("./middleware/errorhandler.js");
+const app = express();
 
 //config path
 dotenv.config({ path: "./config/config.env" });
