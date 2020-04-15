@@ -8,11 +8,17 @@ const geocoder = require("../utils/geojsonDecoder.js");
  */
 exports.getBootcamps = async (req, res, next) => {
   try {
-    const bootcamp = await bootcampModel.find();
+    let queryStr = JSON.stringify(req.query);
+    queryStr = queryStr.replace(
+      /\b(gt|gte|lt|lte|in)\b/g,
+      (match) => `$${match}`
+    );
+
+    const bootcamp = await bootcampModel.find(JSON.parse(queryStr));
     res.status(200).json({
       sucess: true,
       count: bootcamp.length,
-      data: bootcamp
+      data: bootcamp,
     });
   } catch (error) {
     next(error);
@@ -38,7 +44,7 @@ exports.getSingleBootcamp = async (req, res, next) => {
 
     res.status(200).json({
       sucess: true,
-      data: bootcamp
+      data: bootcamp,
     });
     console.log(bootcamp);
   } catch (error) {
@@ -57,7 +63,7 @@ exports.createBootcamp = async (req, res, next) => {
 
     res.status(201).json({
       sucess: true,
-      data: bootcamp
+      data: bootcamp,
     });
     console.log(bootcamp);
   } catch (error) {
@@ -77,7 +83,7 @@ exports.updateBookcamp = async (req, res, next) => {
       req.body,
       {
         new: true,
-        runValidators: true
+        runValidators: true,
       }
     );
 
@@ -89,7 +95,7 @@ exports.updateBookcamp = async (req, res, next) => {
 
     res.status(200).json({
       sucess: true,
-      updatedData: bootcamp
+      updatedData: bootcamp,
     });
     console.log(bootcamp);
   } catch (error) {
@@ -114,7 +120,7 @@ exports.deleteBootcamp = async (req, res, next) => {
 
     res.status(200).json({
       sucess: true,
-      deletedData: bootcamp
+      deletedData: bootcamp,
     });
     console.log(bootcamp);
   } catch (error) {
@@ -138,12 +144,12 @@ exports.findBootcampByLocation = async (req, res, next) => {
   console.log(lat, long, area);
   try {
     const bootcamp = await bootcampModel.find({
-      location: { $geoWithin: { $centerSphere: [[lat, long], area] } }
+      location: { $geoWithin: { $centerSphere: [[lat, long], area] } },
     });
     res.status(200).json({
       sucess: true,
       count: bootcamp.length,
-      data: bootcamp
+      data: bootcamp,
     });
   } catch (error) {
     next(error);
