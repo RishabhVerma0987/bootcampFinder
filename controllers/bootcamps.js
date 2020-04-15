@@ -8,13 +8,27 @@ const geocoder = require("../utils/geojsonDecoder.js");
  */
 exports.getBootcamps = async (req, res, next) => {
   try {
-    let queryStr = JSON.stringify(req.query);
+    let query;
+    let reqQuery = { ...req.query };
+
+    const removeFields = ["select"];
+    removeFields.forEach((param) => delete reqQuery[param]);
+
+    let queryStr = JSON.stringify(reqQuery);
+
     queryStr = queryStr.replace(
       /\b(gt|gte|lt|lte|in)\b/g,
       (match) => `$${match}`
     );
 
-    const bootcamp = await bootcampModel.find(JSON.parse(queryStr));
+    query = bootcampModel.find(JSON.parse(queryStr));
+
+    if (req.query.select) {
+      const findValues = req.query.select.split(",").join(" ");
+      query = query.select(findValues);
+    }
+
+    const bootcamp = await query;
     res.status(200).json({
       sucess: true,
       count: bootcamp.length,
