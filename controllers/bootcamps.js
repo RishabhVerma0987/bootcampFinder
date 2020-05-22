@@ -8,27 +8,34 @@ const geocoder = require("../utils/geojsonDecoder.js");
  */
 exports.getBootcamps = async (req, res, next) => {
   try {
-    let query;
+    //make copy of req.query
     let reqQuery = { ...req.query };
 
+    //remove field from reqQuery
     const removeFields = ["select"];
     removeFields.forEach((param) => delete reqQuery[param]);
 
+    //JSON to Javascript object conversion
     let queryStr = JSON.stringify(reqQuery);
 
+    //FOR less than , less than equal , greater than equal ...etc
     queryStr = queryStr.replace(
       /\b(gt|gte|lt|lte|in)\b/g,
       (match) => `$${match}`
     );
+    //get data from database
+    let query = bootcampModel.find(JSON.parse(queryStr));
 
-    query = bootcampModel.find(JSON.parse(queryStr));
-
+    //if select is given in the url then extract those value which are mentioned
     if (req.query.select) {
-      const findValues = req.query.select.split(",").join(" ");
-      query = query.select(findValues);
+      let a = req.query.select.split(",").join(" ");
+      query = query.select(a);
     }
 
+    //await for everything (bootcampModel , .select)
     const bootcamp = await query;
+
+    //send data
     res.status(200).json({
       sucess: true,
       count: bootcamp.length,
