@@ -12,7 +12,7 @@ exports.getBootcamps = async (req, res, next) => {
     let reqQuery = { ...req.query };
 
     //remove field from reqQuery
-    const removeFields = ["select", "sort"];
+    const removeFields = ["select", "sort", "limit", "page"];
     removeFields.forEach((param) => delete reqQuery[param]);
 
     //JSON to Javascript object conversion
@@ -41,6 +41,29 @@ exports.getBootcamps = async (req, res, next) => {
       query = query.sort("-createdAt");
     }
 
+    //Add pagination
+    let pagination = {};
+    //change default limit to (number under 4) to see the prev and next in pagination object
+    const limit = parseInt(req.query.limit, 10) || 100;
+    const page = parseInt(req.query.page, 10) || 1;
+    const startIndex = (page - 1) * limit;
+    const endIndex = page * limit;
+    const total = await bootcampModel.countDocuments();
+    query = query.skip(startIndex).limit(limit);
+    if (endIndex < total) {
+      pagination.next = {
+        page: page + 1,
+        limit: limit,
+      };
+    }
+
+    if (startIndex > 0) {
+      pagination.prev = {
+        page: page - 1,
+        limit: limit,
+      };
+    }
+
     //await for everything (bootcampModel , .select)
     const bootcamp = await query;
 
@@ -48,6 +71,7 @@ exports.getBootcamps = async (req, res, next) => {
     res.status(200).json({
       sucess: true,
       count: bootcamp.length,
+      pagination: pagination,
       data: bootcamp,
     });
   } catch (error) {
