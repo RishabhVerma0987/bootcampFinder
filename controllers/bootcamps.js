@@ -12,7 +12,7 @@ exports.getBootcamps = async (req, res, next) => {
     let reqQuery = { ...req.query };
 
     //remove field from reqQuery
-    const removeFields = ["select"];
+    const removeFields = ["select", "sort"];
     removeFields.forEach((param) => delete reqQuery[param]);
 
     //JSON to Javascript object conversion
@@ -30,6 +30,15 @@ exports.getBootcamps = async (req, res, next) => {
     if (req.query.select) {
       let a = req.query.select.split(",").join(" ");
       query = query.select(a);
+    }
+
+    //sorting , by deflaut give everything in sorted order by createAt field ,
+    // '-' means decending order
+    if (req.query.sort) {
+      let sortBy = req.query.sort.split(",").join(" ");
+      query = query.sort(sortBy);
+    } else {
+      query = query.sort("-createdAt");
     }
 
     //await for everything (bootcampModel , .select)
