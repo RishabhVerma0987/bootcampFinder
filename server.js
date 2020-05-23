@@ -11,11 +11,12 @@ dotenv.config({ path: "./config/config.env" });
 
 //Routes import
 const bootcamps = require("./routes/bootcamps.js");
-
+const courses = require("./routes/courses.js");
 //define main route & middleware
 app.use(morgan("dev"));
 app.use(express.json());
 app.use("/api/v1/bootcamps", bootcamps);
+app.use("/api/v1/courses", courses);
 app.use(errorHandler);
 connetDB();
 
