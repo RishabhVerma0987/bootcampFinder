@@ -81,3 +81,57 @@ exports.addCourse = async (req, res, next) => {
     next(error);
   }
 };
+/**
+ * @description update Course by Id
+ * @param route PUT /api/v1/courses/:id
+ * @param access PRIVATE
+ */
+exports.updateCourse = async (req, res, next) => {
+  try {
+    const course = await coursesModel.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      {
+        new: true,
+        runValidators: true,
+      }
+    );
+
+    if (!course) {
+      return next(
+        new ErrorHandler(`Course not found at id ${req.params.id}`, 404)
+      );
+    }
+
+    res.status(200).json({
+      sucess: true,
+      data: course,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+/**
+ * @description delete Course by Id
+ * @param route DELETE /api/v1/courses/:id
+ * @param access PRIVATE
+ */
+exports.deleteCourse = async (req, res, next) => {
+  try {
+    const course = await coursesModel.findById(req.params.id);
+    if (!course) {
+      return next(
+        new ErrorHandler(`Course not found at id ${req.params.id}`),
+        400
+      );
+    }
+    await course.remove();
+
+    res.status(200).json({
+      sucess: true,
+      data: course,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
