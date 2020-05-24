@@ -24,7 +24,9 @@ exports.getBootcamps = async (req, res, next) => {
       (match) => `$${match}`
     );
     //get data from database
-    let query = bootcampModel.find(JSON.parse(queryStr));
+    let query = bootcampModel
+      .find(JSON.parse(queryStr))
+      .populate("coursesIncludes");
 
     //if select is given in the url then extract those value which are mentioned
     if (req.query.select) {
@@ -164,13 +166,15 @@ exports.updateBookcamp = async (req, res, next) => {
  */
 exports.deleteBootcamp = async (req, res, next) => {
   try {
-    const bootcamp = await bootcampModel.findOneAndDelete(req.params.id);
+    const bootcamp = await bootcampModel.findById(req.params.id);
 
     if (!bootcamp) {
       return next(
         new ErrorHandler(`Bootcamp not found at id ${req.params.id}`, 404)
       );
     }
+
+    bootcamp.remove();
 
     res.status(200).json({
       sucess: true,
