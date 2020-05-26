@@ -6,6 +6,7 @@ const {
   deleteBootcamp,
   createBootcamp,
   findBootcampByLocation,
+  uploadPhotoBootcamp,
 } = require("../controllers/bootcamps.js");
 const courses = require("../routes/courses.js");
 
@@ -20,6 +21,8 @@ router
   .get(getSingleBootcamp)
   .put(updateBookcamp)
   .delete(deleteBootcamp);
+
+router.route("/:id/photo").put(uploadPhotoBootcamp);
 
 router.route("/radius/:zipcode/:distance").get(findBootcampByLocation);
 

@@ -2,7 +2,9 @@ const express = require("express");
 const colors = require("colors");
 const dotenv = require("dotenv");
 const morgan = require("morgan");
+const fileUpload = require("express-fileupload");
 const connetDB = require("./config/db.js");
+const path = require("path");
 const errorHandler = require("./middleware/errorhandler.js");
 const app = express();
 
@@ -14,6 +16,8 @@ const bootcamps = require("./routes/bootcamps.js");
 const courses = require("./routes/courses.js");
 //define main route & middleware
 app.use(morgan("dev"));
+app.use(fileUpload());
+app.use(express.static(path.join(__dirname, "public")));
 app.use(express.json());
 app.use("/api/v1/bootcamps", bootcamps);
 app.use("/api/v1/courses", courses);
