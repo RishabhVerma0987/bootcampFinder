@@ -9,74 +9,7 @@ const path = require("path");
  */
 exports.getBootcamps = async (req, res, next) => {
   try {
-    //make copy of req.query
-    let reqQuery = { ...req.query };
-
-    //remove field from reqQuery
-    const removeFields = ["select", "sort", "limit", "page"];
-    removeFields.forEach((param) => delete reqQuery[param]);
-
-    //JSON to Javascript object conversion
-    let queryStr = JSON.stringify(reqQuery);
-
-    //FOR less than , less than equal , greater than equal ...etc
-    queryStr = queryStr.replace(
-      /\b(gt|gte|lt|lte|in)\b/g,
-      (match) => `$${match}`
-    );
-    //get data from database
-    let query = bootcampModel
-      .find(JSON.parse(queryStr))
-      .populate("coursesIncludes");
-
-    //if select is given in the url then extract those value which are mentioned
-    if (req.query.select) {
-      let a = req.query.select.split(",").join(" ");
-      query = query.select(a);
-    }
-
-    //sorting , by deflaut give everything in sorted order by createAt field ,
-    // '-' means decending order
-    if (req.query.sort) {
-      let sortBy = req.query.sort.split(",").join(" ");
-      query = query.sort(sortBy);
-    } else {
-      query = query.sort("-createdAt");
-    }
-
-    //Add pagination
-    let pagination = {};
-    //change default limit to (number under 4) to see the prev and next in pagination object
-    const limit = parseInt(req.query.limit, 10) || 100;
-    const page = parseInt(req.query.page, 10) || 1;
-    const startIndex = (page - 1) * limit;
-    const endIndex = page * limit;
-    const total = await bootcampModel.countDocuments();
-    query = query.skip(startIndex).limit(limit);
-    if (endIndex < total) {
-      pagination.next = {
-        page: page + 1,
-        limit: limit,
-      };
-    }
-
-    if (startIndex > 0) {
-      pagination.prev = {
-        page: page - 1,
-        limit: limit,
-      };
-    }
-
-    //await for everything (bootcampModel , .select)
-    const bootcamp = await query;
-
-    //send data
-    res.status(200).json({
-      sucess: true,
-      count: bootcamp.length,
-      pagination: pagination,
-      data: bootcamp,
-    });
+    res.status(200).json(res.advanceResults);
   } catch (error) {
     next(error);
   }

@@ -10,11 +10,18 @@ const {
 } = require("../controllers/bootcamps.js");
 const courses = require("../routes/courses.js");
 
+//get model and middleware for advance filtering
+const Bootcamp = require("../models/Bootcamp.js");
+const advanceFiltering = require("../middleware/advanceFiltering.js");
+
 const router = express.Router();
 
 router.use("/:bootcampId/courses", courses);
 
-router.route("/").get(getBootcamps).post(createBootcamp);
+router
+  .route("/")
+  .get(advanceFiltering(Bootcamp, "coursesIncludes"), getBootcamps)
+  .post(createBootcamp);
 
 router
   .route("/:id")
