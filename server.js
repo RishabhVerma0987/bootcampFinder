@@ -14,6 +14,7 @@ dotenv.config({ path: "./config/config.env" });
 //Routes import
 const bootcamps = require("./routes/bootcamps.js");
 const courses = require("./routes/courses.js");
+const auth = require("./routes/auth.js");
 //define main route & middleware
 app.use(morgan("dev"));
 app.use(fileUpload());
@@ -21,6 +22,7 @@ app.use(express.static(path.join(__dirname, "public")));
 app.use(express.json());
 app.use("/api/v1/bootcamps", bootcamps);
 app.use("/api/v1/courses", courses);
+app.use("/api/v1/auth", auth);
 app.use(errorHandler);
 connetDB();
 
