@@ -1,5 +1,5 @@
 const express = require("express");
-
+const { protectRoute } = require("../middleware/auth.js");
 const {
   getCourses,
   getSingleCourse,
@@ -16,11 +16,11 @@ const advanceFiltering = require("../middleware/advanceFiltering.js");
 router
   .route("/")
   .get(advanceFiltering(course, "bootcamp"), getCourses)
-  .post(addCourse);
+  .post(protectRoute, addCourse);
 router
   .route("/:id")
   .get(getSingleCourse)
-  .put(updateCourse)
-  .delete(deleteCourse);
+  .put(protectRoute, updateCourse)
+  .delete(protectRoute, deleteCourse);
 
 module.exports = router;

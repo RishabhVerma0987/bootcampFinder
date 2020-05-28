@@ -73,3 +73,21 @@ exports.loginUser = async (req, res, next) => {
     next(error);
   }
 };
+
+/**
+ * @description check myself
+ * @param route POST /api/v1/auth/me
+ * @param access PRIVATE
+ */
+exports.getMe = async (req, res, next) => {
+  try {
+    const user = await userModel.findById(req.user.id);
+
+    res.status(200).json({
+      sucess: true,
+      data: user,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
