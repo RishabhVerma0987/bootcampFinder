@@ -1,5 +1,4 @@
 const express = require("express");
-const { protectRoute } = require("../middleware/auth.js");
 const {
   getCourses,
   getSingleCourse,
@@ -12,15 +11,16 @@ const router = express.Router({ mergeParams: true });
 //get middleware and model for advance filtering
 const course = require("../models/Course.js");
 const advanceFiltering = require("../middleware/advanceFiltering.js");
+const { protectRoute, authorize } = require("../middleware/auth.js");
 
 router
   .route("/")
   .get(advanceFiltering(course, "bootcamp"), getCourses)
-  .post(protectRoute, addCourse);
+  .post(protectRoute, authorize("publisher", "admin"), addCourse);
 router
   .route("/:id")
   .get(getSingleCourse)
-  .put(protectRoute, updateCourse)
-  .delete(protectRoute, deleteCourse);
+  .put(protectRoute, authorize("publisher", "admin"), updateCourse)
+  .delete(protectRoute, authorize("publisher", "admin"), deleteCourse);
 
 module.exports = router;

@@ -23,3 +23,16 @@ exports.protectRoute = async (req, res, next) => {
     return next(new ErrorHandler("Not authorized to access this route", 401));
   }
 };
+
+exports.authorize = (...roles) => (req, res, next) => {
+  if (!roles.includes(req.user.role)) {
+    return next(
+      new ErrorHandler(
+        `This user is allowed to perform action , user role : ${req.user.role}`,
+        403
+      )
+    );
+  }
+  //if this is not mentioned then entire application will hang
+  next();
+};
