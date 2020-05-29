@@ -1,5 +1,6 @@
 const ErrorHandler = require("../utils/errorHandler.js");
 const userModel = require("../models/User.js");
+const sendEmail = require("../utils/sendemail.js");
 /**
  * @description register user
  * @param route POST /api/v1/auth/register
@@ -107,6 +108,29 @@ exports.forgetpassword = async (req, res, next) => {
     const resetToken = user.getResetToken();
 
     await user.save({ validateBeforeSave: false });
+
+    //create url
+    const resetUrl = `${req.protocol}://${req.get(
+      "host"
+    )}/api/v1/resetpassword/${resetToken}`;
+
+    try {
+      await sendEmail({
+        email: user.email,
+        subject: "password reset token",
+        message: `you have requested to reset password , please make PUT to ${resetUrl}`,
+      });
+      res.status(200).json({
+        sucess: true,
+        data: "reset password mail sent",
+      });
+    } catch (error) {
+      console.log(error);
+      user.resetPasswordToken = undefined;
+      user.resetPasswordExpire = undefined;
+      await user.save({ validateBeforeSave: false });
+      next(new ErrorHandler(`email could not be sent`, 500));
+    }
 
     res.status(200).json({
       sucess: true,
