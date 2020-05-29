@@ -91,3 +91,28 @@ exports.getMe = async (req, res, next) => {
     next(error);
   }
 };
+
+/**
+ * @description forget password
+ * @param route POST /api/v1/auth/forgetpassword
+ * @param access PRIVATE
+ */
+exports.forgetpassword = async (req, res, next) => {
+  try {
+    const user = await userModel.findOne({ email: req.body.email });
+    if (!user) {
+      return next(new ErrorHandler(`User is not present`, 404));
+    }
+
+    const resetToken = user.getResetToken();
+
+    await user.save({ validateBeforeSave: false });
+
+    res.status(200).json({
+      sucess: true,
+      data: user,
+    });
+  } catch (error) {
+    next(error);
+  }
+};

@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-
+const crypto = require("crypto");
 const UserSchema = new mongoose.Schema({
   name: {
     type: String,
@@ -35,6 +35,10 @@ const UserSchema = new mongoose.Schema({
   },
 });
 UserSchema.pre("save", async function (next) {
+  if (!this.isModified("password")) {
+    next();
+  }
+
   const salt = await bcrypt.genSalt(10);
   this.password = await bcrypt.hash(this.password, salt);
   next(); //NOTE-> THERE IS NOT NEXT IN THE VIDEO
@@ -51,4 +55,20 @@ UserSchema.methods.matchpasswords = async function (enteredPassword) {
   //this cannot be accesed in statics ?? there are only available in methods ??
   return await bcrypt.compare(enteredPassword, this.password);
 };
+
+UserSchema.methods.getResetToken = function () {
+  //genrating token
+  const resetToken = crypto.randomBytes(20).toString("hex");
+
+  //hash the generated token
+  this.resetPasswordToken = crypto
+    .createHash("sha256")
+    .update(resetToken)
+    .digest("hex");
+
+  //10 minitues
+  this.resetPasswordExpire = Date.now() + 10 * 60 * 1000;
+  return resetToken;
+};
+
 module.exports = mongoose.model("User", UserSchema);
