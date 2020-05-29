@@ -1,6 +1,7 @@
 const ErrorHandler = require("../utils/errorHandler.js");
 const userModel = require("../models/User.js");
 const sendEmail = require("../utils/sendemail.js");
+const crypto = require("crypto");
 /**
  * @description register user
  * @param route POST /api/v1/auth/register
@@ -112,7 +113,7 @@ exports.forgetpassword = async (req, res, next) => {
     //create url
     const resetUrl = `${req.protocol}://${req.get(
       "host"
-    )}/api/v1/resetpassword/${resetToken}`;
+    )}/api/v1/auth/resetpassword/${resetToken}`;
 
     try {
       await sendEmail({
@@ -135,6 +136,48 @@ exports.forgetpassword = async (req, res, next) => {
     res.status(200).json({
       sucess: true,
       data: user,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * @description reset password
+ * @param route PUT /api/v1/auth/resetpassword/:resettoken
+ * @param access PRIVATE
+ */
+exports.resetpassword = async (req, res, next) => {
+  try {
+    const resetPasswordToken = crypto
+      .createHash("sha256")
+      .update(req.params.resettoken)
+      .digest("hex");
+
+    const user = await userModel.findOne({
+      resetPasswordToken,
+
+      //our resetpassowrdExpire should be greater than present time
+      resetPasswordExpire: {
+        $gt: Date.now(),
+      },
+    });
+
+    if (!user) {
+      return next(new ErrorHandler(`Invalid token`, 404));
+    }
+
+    //replace old password with new one
+    user.password = req.body.password;
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpire = undefined;
+    await user.save();
+
+    const token = user.getSignedJwtToken();
+
+    res.status(200).json({
+      sucess: true,
+      token,
     });
   } catch (error) {
     next(error);
