@@ -5,21 +5,34 @@ const {
   updateBookcamp,
   deleteBootcamp,
   createBootcamp,
-  findBootcampByLocation
+  findBootcampByLocation,
+  uploadPhotoBootcamp,
 } = require("../controllers/bootcamps.js");
+const courses = require("../routes/courses.js");
+
+//get model and middleware for advance filtering
+const Bootcamp = require("../models/Bootcamp.js");
+const advanceFiltering = require("../middleware/advanceFiltering.js");
+const { protectRoute, authorize } = require("../middleware/auth.js");
 
 const router = express.Router();
 
+router.use("/:bootcampId/courses", courses);
+
 router
   .route("/")
-  .get(getBootcamps)
-  .post(createBootcamp);
+  .get(advanceFiltering(Bootcamp, "coursesIncludes"), getBootcamps)
+  .post(protectRoute, authorize("publisher", "admin"), createBootcamp);
 
 router
   .route("/:id")
   .get(getSingleBootcamp)
-  .put(updateBookcamp)
-  .delete(deleteBootcamp);
+  .put(protectRoute, authorize("publisher", "admin"), updateBookcamp)
+  .delete(protectRoute, authorize("publisher", "admin"), deleteBootcamp);
+
+router
+  .route("/:id/photo")
+  .put(protectRoute, authorize("publisher", "admin"), uploadPhotoBootcamp);
 
 router.route("/radius/:zipcode/:distance").get(findBootcampByLocation);
 
